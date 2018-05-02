@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+   <!-- DB 접속정보 값을 가지고 있는 파일 설정 -->
+   <!-- 경로의 패키지명까지 풀네임 적어 줄 것 -->
+   <properties resource="com/project/mybatis/bd.properties"/>
+   
+   <!-- 별명부여 -->
+   <typeAliases>
+      <typeAlias type="com.project.DTO.MemberDTO" alias="mDto"/>
+		<typeAlias type="com.project.DTO.ProductDTO" alias="pDTO"/>
+		<typeAlias type="com.project.DTO.BoardDTO" alias="boardDTO"/>
+		<typeAlias type="com.project.DTO.NextPreDTO" alias="nDTO"/>
+		<typeAlias type="com.project.DTO.ReplyDTO" alias="rDTO"/>
+		<typeAlias type="com.project.DTO.CriteriaDTO" alias="cDTO"/>     
+   </typeAliases>
+   
+   <!-- DB접속 정보 셋팅 -->
+   <environments default="development">
+      <environment id="development">
+         <transactionManager type="JDBC"/>
+         <dataSource type="POOLED">
+            <property name="driver" value="${driver}"/>
+            <property name="url" value="${url}"/>
+            <property name="username" value="${username}"/>
+            <property name="password" value="${password}"/>
+         </dataSource>
+      </environment>
+   </environments>
+   
+   
+   <!-- Mapper.xml 파일 설정 -->
+   <mappers>
+      <mapper resource="com/project/mybatis/projectMapper.xml"/> <!--매퍼를 여러개 만들수도 있다.  -->
+   </mappers>
+   </configuration>

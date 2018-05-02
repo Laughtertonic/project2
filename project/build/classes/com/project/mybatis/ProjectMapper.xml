@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com/project/mybatis/projectMapper.xml">
+
+  <select id="newpdtview" resultType="pDTO" parameterType="String">
+  
+   			SELECT * FROM new_pro_view
+   			
+  </select>
+  
+  <select id="bestview" resultType="pDTO" parameterType="String">
+  
+   			SELECT * FROM best_pro_view
+   			
+  </select>
+  
+  <select id="memlogin" resultType="java.util.HashMap" parameterType="String">
+
+  			SELECT * FROM member WHERE mid = #{id} and mpw = #{pw}
+  			
+  </select>
+  
+  <select id="memIdCheck" resultType="mDto">
+  
+  			SELECT * FROM member WHERE mid = #{mid}
+  			
+  </select>
+  
+  
+  <select id="sessionLogin" resultType="mDto">
+  
+  			SELECT * FROM member WHERE mid = #{mid} AND mpw = #{mpw}
+  		
+  </select>
+  
+
+  
+  <insert id="memIsert" >
+  		
+  			INSERT INTO member (mid, mpw, mname, mphone, mjusonum, mjuso, mjuso2,  memail, memail2, mbirthyear, mbirthmonth, mbirthday, mmen) 
+  			VALUES ( #{mid}, #{mpw}, #{mname}, #{mphone}, #{mjusonum},#{mjuso}, #{mjuso2}, #{memail}, #{memail2}, #{mbirthyear}, #{mbirthmonth}, #{mbirthday}, #{mmen} )
+  
+  </insert>
+  
+   <select id="boardlistAll" resultType="com.project.DTO.BoardDTO">
+  
+  			SELECT * FROM tblboard ORDER by bno desc
+  		
+  	</select>
+  	
+  	<insert id="insertBoard" >
+  	
+	  		INSERT INTO tblboard (bno, title, content, writer, filename, filesize, ref, re_step, re_level) 
+	  		VALUES((select nvl(max(bno)+1, 1) FROM tblboard), #{title} , #{content} ,#{writer}, #{filename}, #{filesize}, (select nvl(max(bno)+1, 1) FROM tblboard) , 1 , 0  )
+	  		
+  	</insert>
+  	
+  	
+  	<select id="bodylist" resultType="boardDTO" >
+  
+  			SELECT * FROM tblboard WHERE bno = #{bno}
+  		
+  	</select>
+  	
+  	<select id="modfiyList" resultType="boardDTO" >
+  
+  			SELECT * FROM tblboard WHERE bno = #{bno}
+  		
+  	</select>
+  	
+	 <update id="modfiyUpdate">
+	  	
+	  		UPDATE tblboard SET title = #{title}, content= #{content}, writer = #{writer}, filename = #{filename} , filesize = #{filesize} 
+	  		WHERE bno = #{bno}
+	  		
+	 </update>
+  	
+	 <delete id="modifDelete" parameterType="Integer">
+	  	
+	  		DELETE FROM tblboard WHERE bno = #{bno}
+	  	
+	 </delete>
+ 
+	 <update id="bodylistRead">
+	  	
+	   		UPDATE tblboard SET viewont = viewont + 1 WHERE bno = #{bno}
+	  		
+	 </update>
+	 
+	  <update id="bodyseetadd">
+	  	
+	   		UPDATE tblboard SET sweet = sweet + 1 WHERE bno = #{bno}
+	  		
+	 </update>
+ 
+	 <!-- <![CDATA[]]> 쓰는 이유는 ">" 를 텍스트 파일로 인식하는 것을 방지 하기 위해서 사용 한다.  -->
+	 <select id="countPaging" resultType="int">
+	 
+	 		SELECT count(bno)
+	 		FROM tblboard
+	 		
+	 	<![CDATA[
+	 		WHERE bno > 0 
+	 	]]>
+	 	
+	 	<choose>
+	    	<when test="select.equals('제목')">
+	 			AND	 title LIKE '%'||#{search}||'%'
+	 		</when>
+	 		<when test="select.equals('내용')">
+	 			AND	 content LIKE '%'||#{search}||'%'
+	 		</when>
+	 		<when test="select.equals('제목내용')">
+	 			AND	 content LIKE '%'||#{search}||'%' OR title LIKE '%'||#{search}||'%'
+	 		</when>
+	 		<when test="select.equals('아이디')">
+	 			AND	 writer = #{search}
+	 		</when>
+ 		</choose>
+	 
+	 </select>
+ 
+ <select id="listCriteria" resultType="boardDTO">
+ 	
+ 		SELECT * 
+ 		FROM (
+ 			SELECT rownum rnum,
+ 			a.*
+ 			FROM( 
+ 				SELECT * 
+ 				FROM tblboard
+ 				<![CDATA[
+ 				WHERE bno > 0
+ 				]]>
+ 			<choose>
+    			<when test="select.equals('번호순▼')">
+ 				ORDER BY bno ASC, ref DESC, re_step ASC
+ 				</when>
+ 				<when test="select.equals('번호순▲')">
+ 				ORDER BY ref DESC, re_step ASC
+ 				</when>
+ 				
+ 				<when test="select.equals('날짜순▼')">
+ 				ORDER BY regdate DESC, ref DESC, re_step ASC
+ 				</when>
+ 				
+ 				<when test="select.equals('날짜순▲')">
+ 				ORDER BY regdate ASC, ref DESC, re_step ASC
+ 				</when>
+ 				
+ 				<when test="select.equals('조회순▼')">
+ 				ORDER BY viewont DESC, ref DESC, re_step ASC
+ 				</when>
+ 				
+ 				<when test="select.equals('조회순▲')">
+ 				ORDER BY viewont ASC, ref DESC, re_step ASC
+ 				</when>
+ 				
+ 				<when test="select.equals('추천순▼')">
+ 				ORDER BY sweet DESC, ref DESC, re_step ASC
+ 				</when>
+ 				
+ 				<when test="select.equals('추천순▲')">
+ 				ORDER BY sweet ASC, ref DESC, re_step ASC
+ 				</when>
+ 				
+ 				
+ 				<when test="select.equals('제목순▼')">
+ 				ORDER BY  ref DESC, re_step ASC, TITLE DESC
+ 				</when>
+ 				
+ 				<when test="select.equals('제목순▲')">
+ 				ORDER BY TITLE ASC , ref DESC, re_step ASC
+ 				</when>
+ 			</choose>
+ 				) a
+ 		)
+ 		WHERE rnum BETWEEN #{pageStart} AND #{perPageNum}
+ 	
+ </select>
+ 
+  <select id="bodynext" resultType="nDTO" >
+  <![CDATA[
+  SELECT * FROM (
+					SELECT
+						bno
+					    , TITLE
+					    , writer
+					    , regdate 
+					    , LEAD(bno, 1 ) OVER (ORDER BY bno DESC) AS next_article_bno
+					    , LEAD(TITLE, 1 , '다음글 없음') OVER (ORDER BY bno DESC) AS next_title
+					    , LEAD(writer, 1 , '') OVER (ORDER BY bno DESC) AS next_writer
+					    , LEAD(regdate, 1 , '') OVER (ORDER BY bno DESC) AS next_regdate
+					    , LAG(bno, 1) OVER (ORDER BY bno DESC ) AS  pre_article_bno
+					    , LAG(TITLE, 1 , '이전글없음') OVER (ORDER BY bno DESC ) pre_title
+					    , LAG(writer, 1) OVER (ORDER BY bno DESC ) AS  pre_writer
+					    , LAG(regdate, 1) OVER (ORDER BY bno DESC ) AS pre_regdate
+					FROM
+					tblboard
+				) WHERE bno= #{bno}
+	]]>
+ </select>
+ 
+ 
+ 	<select id="replyList" resultType="rDTO">
+ 		SELECT * FROM tblreply WHERE bno=#{bno}
+ 	</select>
+ 	
+ 	<select id="replycount" resultType="rDTO">
+ 		SELECT count(*) AS count FROM tblreply WHERE bno=#{bno}
+ 	</select>
+ 	
+ 	<insert id="replyinsert" >
+ 		 INSERT INTO tblreply (rno, content, writer, bno)
+ 		VALUES (seq_tblreply_rno.NEXTVAL, #{content}, #{writer} , #{bno})
+ 	</insert>
+ 	
+ 	<delete id="replydelete">
+ 	
+ 		DELETE FROM tblreply WHERE rno = #{rno}
+ 		
+ 	</delete>
+ 	
+ 	<delete id="replyAllDelete">
+ 	
+ 		DELETE FROM tblreply WHERE bno = #{bno}
+ 		
+ 	</delete>
+ 	
+ 	<update id="countUpdate">
+ 	
+ 		UPDATE tblboard SET count = #{count}  WHERE bno = #{bno}
+ 		
+ 	</update>
+ 	
+ 	<select id="searchTitle" resultType="boardDTO" >
+ 		
+ 		
+ 		SELECT * 
+ 		FROM (
+ 			SELECT rownum rnum,
+ 			a.*
+ 			FROM( 
+ 				SELECT * 
+ 				FROM tblboard
+ 				<![CDATA[
+ 				WHERE bno > 0 AND
+ 					]]>
+ 	<choose>
+    	<when test="select.equals('제목')">
+ 				 title LIKE '%'||#{search}||'%'
+ 		</when>
+ 		<when test="select.equals('내용')">
+ 				 content LIKE '%'||#{search}||'%'
+ 		</when>
+ 		<when test="select.equals('제목내용')">
+ 				 content LIKE '%'||#{search}||'%' OR title LIKE '%'||#{search}||'%'
+ 		</when>
+ 		<when test="select.equals('아이디')">
+ 				 writer = #{search}
+ 		</when>
+ 	</choose>
+ 				ORDER BY bno desc
+ 				) a
+ 		)
+ 		WHERE rnum BETWEEN #{pageStart} AND #{perPageNum}
+ 
+ 		
+ 	</select>
+ 	
+ 	<select id="searchContent" resultType="boardDTO" >
+ 		
+ 		<![CDATA[
+ 		SELECT * 
+ 		FROM (
+ 			SELECT rownum rnum,
+ 			a.*
+ 			FROM( 
+ 				SELECT * 
+ 				FROM tblboard
+ 				WHERE bno > 0 AND content LIKE '%'||#{search}||'%'
+ 				ORDER BY bno desc
+ 				) a
+ 		)
+ 		WHERE rnum BETWEEN #{pageStart} AND #{perPageNum}
+ 	]]>
+ 		
+ 	</select>
+ 	
+ 	<select id="searchTitleContent" resultType="boardDTO" >
+ 		
+ 		<![CDATA[
+ 		SELECT * 
+ 		FROM (
+ 			SELECT rownum rnum,
+ 			a.*
+ 			FROM( 
+ 				SELECT * 
+ 				FROM tblboard
+ 				WHERE bno > 0 AND content LIKE '%'||#{search}||'%' OR title LIKE '%'||#{search}||'%'
+ 				ORDER BY bno desc
+ 				) a
+ 		)
+ 		WHERE rnum BETWEEN #{pageStart} AND #{perPageNum}
+ 	]]>
+ 		
+ 	</select>
+ 	
+ 	 	<select id="searchWriter" resultType="boardDTO" >
+ 		
+ 		<![CDATA[
+ 		SELECT * 
+ 		FROM (
+ 			SELECT rownum rnum,
+ 			a.*
+ 			FROM( 
+ 				SELECT * 
+ 				FROM tblboard
+ 				WHERE bno > 0 AND writer = #{search}
+ 				ORDER BY bno desc
+ 				) a
+ 		)
+ 		WHERE rnum BETWEEN #{pageStart} AND #{perPageNum}
+ 	]]>
+ 		
+ 	</select>
+ 	
+ 	
+ 	<select id="personalSelect" resultType="mDto" parameterType="String">
+ 	
+ 		SELECT * FROM member WHERE mid = #{mid}
+ 		
+ 	</select>
+ 	
+ 	<update id="passwordUpdate">
+ 	
+ 		UPDATE member SET mpw= #{mpw} WHERE mid = #{mid}
+ 	
+ 	</update>
+ 	
+ 	<update id="memUpdate">
+ 	
+ 		UPDATE member SET mphone = #{mphone}, mjusonum = #{mjusonum}, mjuso = #{mjuso}, mjuso2 = #{mjuso2}, memail =#{memail} , memail2 = #{memail2}, 
+ 		mbirthyear= #{mbirthyear}, mbirthmonth = #{mbirthmonth}, mbirthday = #{mbirthday}  
+ 		WHERE mid = #{mid} 
+ 	
+ 	</update>
+ 	
+ 	<delete id="memDelete">
+ 	
+ 		DELETE FROM member WHERE mid = #{mid}
+ 	
+ 	</delete>
+ 	
+ 	<select id="getFileName" parameterType="int" resultType="String">
+ 	
+ 	SELECT filename 
+ 	FROM tblboard
+ 	WHERE bno = #{bno}
+ 	
+ 	</select>
+ 	
+ 	<update id="downLoadCount">
+ 	
+ 		UPDATE tblboard SET downloadcnt = downloadcnt + 1 WHERE bno = #{bno}
+ 	
+ 	</update>
+ 	
+ 	<update id="updateStep">
+ 	
+ 		UPDATE tblboard SET re_step = re_step + 1
+ 		
+ 		WHERE ref = #{ref} AND re_step >= #{re_step}
+ 	
+ 	</update>
+ 	
+ 	<insert id="answerInsert" parameterType="boardDTO">
+ 	
+ 		INSERT INTO tblboard (bno, title, content, writer, filename, filesize, ref, re_step, re_level) 
+	  		VALUES((select nvl(max(bno)+1, 1) FROM tblboard), #{title} , #{content} ,#{writer}, #{filename}, #{filesize}, #{ref} , #{re_step} , #{re_level}  )
+ 	
+ 	</insert>
+  
+</mapper>
+  
